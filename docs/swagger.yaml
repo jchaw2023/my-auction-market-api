@@ -1,0 +1,568 @@
+basePath: /api
+definitions:
+  models.AuctionPayload:
+    properties:
+      endTime:
+        type: string
+      nftAddress:
+        type: string
+      paymentToken:
+        type: string
+      startPrice:
+        type: string
+      startTime:
+        type: string
+      tokenId:
+        type: integer
+    required:
+    - endTime
+    - nftAddress
+    - startPrice
+    - startTime
+    - tokenId
+    type: object
+  models.BidPayload:
+    properties:
+      amount:
+        type: string
+      auctionId:
+        type: integer
+      paymentToken:
+        type: string
+    required:
+    - amount
+    - auctionId
+    type: object
+  models.LoginPayload:
+    properties:
+      account:
+        description: can be email or username
+        type: string
+      password:
+        minLength: 6
+        type: string
+    required:
+    - account
+    - password
+    type: object
+  models.LoginResult:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/models.UserProfile'
+    type: object
+  models.RegisterPayload:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      username:
+        maxLength: 64
+        minLength: 1
+        type: string
+      walletAddress:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  models.UserProfile:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      username:
+        type: string
+      walletAddress:
+        type: string
+    type: object
+  models.WalletLoginRequestNoncePayload:
+    properties:
+      walletAddress:
+        type: string
+    required:
+    - walletAddress
+    type: object
+  models.WalletLoginRequestNonceResult:
+    properties:
+      message:
+        type: string
+      nonce:
+        type: string
+    type: object
+  models.WalletLoginVerifyPayload:
+    properties:
+      message:
+        type: string
+      signature:
+        type: string
+      walletAddress:
+        type: string
+    required:
+    - message
+    - signature
+    - walletAddress
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      error:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+    url: http://www.example.com/support
+  description: A RESTful API for NFT auction marketplace using Gin and GORM
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: My Auction Market API
+  version: "1.0"
+paths:
+  /auctions:
+    get:
+      consumes:
+      - application/json
+      description: Get a paginated list of auctions
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: List auctions
+      tags:
+      - auctions
+    post:
+      consumes:
+      - application/json
+      description: Create a new auction with the provided information
+      parameters:
+      - description: Auction payload
+        in: body
+        name: auction
+        required: true
+        schema:
+          $ref: '#/definitions/models.AuctionPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Create a new auction
+      tags:
+      - auctions
+  /auctions/{auctionId}/bids:
+    get:
+      consumes:
+      - application/json
+      description: Get all bids for a specific auction
+      parameters:
+      - description: Auction ID
+        in: path
+        name: auctionId
+        required: true
+        type: integer
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get bids by auction ID
+      tags:
+      - bids
+  /auctions/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a single auction by ID
+      parameters:
+      - description: Auction ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get auction by ID
+      tags:
+      - auctions
+  /auctions/my:
+    get:
+      consumes:
+      - application/json
+      description: Get auctions created by the current user
+      parameters:
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Page size
+        in: query
+        name: pageSize
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get user auctions
+      tags:
+      - auctions
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login with email and password
+      parameters:
+      - description: Login payload
+        in: body
+        name: login
+        required: true
+        schema:
+          $ref: '#/definitions/models.LoginPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: User login
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: Register payload
+        in: body
+        name: register
+        required: true
+        schema:
+          $ref: '#/definitions/models.RegisterPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Register a new user
+      tags:
+      - auth
+  /auth/wallet/request-nonce:
+    post:
+      consumes:
+      - application/json
+      description: Generates a unique nonce for a given wallet address to be signed
+        by the user
+      parameters:
+      - description: Wallet address
+        in: body
+        name: walletAddress
+        required: true
+        schema:
+          $ref: '#/definitions/models.WalletLoginRequestNoncePayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.WalletLoginRequestNonceResult'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Request a nonce for wallet login
+      tags:
+      - auth
+  /auth/wallet/verify:
+    post:
+      consumes:
+      - application/json
+      description: Verifies the signed message and logs in the user, returning a JWT
+        token
+      parameters:
+      - description: Wallet login payload
+        in: body
+        name: walletLogin
+        required: true
+        schema:
+          $ref: '#/definitions/models.WalletLoginVerifyPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/models.LoginResult'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Verify wallet signature and login
+      tags:
+      - auth
+  /bids:
+    post:
+      consumes:
+      - application/json
+      description: Place a bid on an auction
+      parameters:
+      - description: Bid payload
+        in: body
+        name: bid
+        required: true
+        schema:
+          $ref: '#/definitions/models.BidPayload'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Place a bid
+      tags:
+      - bids
+  /bids/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a single bid by ID
+      parameters:
+      - description: Bid ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Get bid by ID
+      tags:
+      - bids
+  /health:
+    get:
+      consumes:
+      - application/json
+      description: Check if the API is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Health check
+      tags:
+      - health
+  /users/profile:
+    get:
+      consumes:
+      - application/json
+      description: Get current user profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Get user profile
+      tags:
+      - users
+schemes:
+- http
+- https
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

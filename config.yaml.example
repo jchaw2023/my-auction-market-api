@@ -1,0 +1,45 @@
+app_name: my-auction-market-api
+environment: development
+http_port: 8080
+read_timeout: 10s
+write_timeout: 15s
+log_level: debug
+
+database:
+  host: localhost
+  port: 3306
+  user: root
+  password: YOUR_DATABASE_PASSWORD
+  name: auction_market_db
+  charset: utf8mb4
+  max_open_conns: 25
+  max_idle_conns: 10
+  conn_max_lifetime: 5m
+  conn_max_idle_time: 10m
+
+jwt:
+  secret: YOUR_JWT_SECRET_KEY_CHANGE_IN_PRODUCTION
+  expiration: 24h
+
+ethereum:
+  rpc_url: https://your-rpc-provider.com/YOUR_API_KEY
+  wss_url: wss://your-wss-provider.com/YOUR_API_KEY
+  auction_contract_address: 0xYOUR_AUCTION_CONTRACT_ADDRESS
+  platform_private_key: YOUR_PLATFORM_PRIVATE_KEY
+  chain_id: 11155111
+  websocket_timeout: 60s # WebSocket 连接超时时间，心跳间隔会自动设置为超时时间的 60%
+
+etherscan:
+  api_key: YOUR_ETHERSCAN_API_KEY
+  chain_id: 11155111
+
+redis:
+  addr: localhost:6379
+  password: YOUR_REDIS_PASSWORD
+  db: 0
+  pool_size: 10
+  min_idle_conns: 5
+  dial_timeout: 5s
+  read_timeout: 3s
+  write_timeout: 3s
+

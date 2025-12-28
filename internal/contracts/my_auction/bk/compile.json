@@ -1,0 +1,24 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "MyXAuctionV2.sol": {
+      "content": ""
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": true,
+      "runs": 200
+    },
+    "viaIR": true,
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode"
+        ]
+      }
+    }
+  }
+}
